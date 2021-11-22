@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
-#define CONSOLE_HEIGHT 29
-#define CONSOLE_WIDTH 19
+#define CONSOLE_HEIGHT 20
+#define CONSOLE_WIDTH 20
 
 void RellenarMapa();
 void Inputs();
@@ -21,6 +21,7 @@ int personaje_y = 5;
 int personaje_points = 0;
 USER_INPUTS input = USER_INPUTS::NONE;
 bool run = true;
+bool win = false;
 
 int main()
 {
@@ -55,6 +56,11 @@ void RellenarMapa()
     ConsoleScreen[3][0] = MAP_TILES::EMPTY;
     ConsoleScreen[2][CONSOLE_WIDTH - 1] = MAP_TILES::EMPTY;
     ConsoleScreen[3][CONSOLE_WIDTH - 1] = MAP_TILES::EMPTY;
+
+    ConsoleScreen[2][3] = MAP_TILES::POINT;
+    map_points++;
+    ConsoleScreen[3][3] = MAP_TILES::POINT;
+    map_points++;
 }
 
 void Inputs()
@@ -91,44 +97,65 @@ void Inputs()
 
 void Logica()
 {
-    int personaje_y_new = personaje_y;
-    int personaje_x_new = personaje_x;
-    switch (input)
+    if (win)
     {
-    case UP:
-        personaje_y_new--;
-        break;
-    case DOWN:
-        personaje_y_new++;
-        break;
-    case RIGHT:
-        personaje_x_new++;
-        break;
-    case LEFT:
-        personaje_x_new--;
-        break;
-    case QUIT:
-        run = false;
-        break;
+        switch (input)
+        {
+        case QUIT:
+            run = false;
+            break;
+        }
     }
-    if (personaje_x_new < 0)
+    else
     {
-        personaje_x_new = CONSOLE_WIDTH - 1;
+        int personaje_y_new = personaje_y;
+        int personaje_x_new = personaje_x;
+        switch (input)
+        {
+        case UP:
+            personaje_y_new--;
+            break;
+        case DOWN:
+            personaje_y_new++;
+            break;
+        case RIGHT:
+            personaje_x_new++;
+            break;
+        case LEFT:
+            personaje_x_new--;
+            break;
+        case QUIT:
+            run = false;
+            break;
+        }
+        if (personaje_x_new < 0)
+        {
+            personaje_x_new = CONSOLE_WIDTH - 1;
+        }
+        personaje_x_new %= CONSOLE_WIDTH;
+        if (personaje_y_new < 0)
+        {
+            personaje_y_new = CONSOLE_HEIGHT - 1;
+        }
+        personaje_y_new %= CONSOLE_HEIGHT;
+        if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::WALL)
+        {
+            personaje_y_new = personaje_y;
+            personaje_x_new = personaje_x;
+        }
+        else if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::POINT)
+        {
+            map_points--;
+            personaje_points++;
+            ConsoleScreen[personaje_y_new][personaje_x_new] = MAP_TILES::EMPTY;
+        }
+        personaje_y = personaje_y_new;
+        personaje_x = personaje_x_new;
+        if (map_points <= 0)
+        {
+            win = true;
+        }
     }
-    personaje_x_new %= CONSOLE_WIDTH;
-    if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::WALL)
-    {
-        personaje_y_new = personaje_y;
-        personaje_x_new = personaje_x;
-    }
-    else if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::POINT)
-    {
-        map_points--;
-        personaje_points++;
-        ConsoleScreen[personaje_y_new][personaje_x_new] = MAP_TILES::EMPTY;
-    }
-    personaje_y = personaje_y_new;
-    personaje_x = personaje_x_new;
 }
 
 void ImprimirPantalla()
@@ -148,5 +175,10 @@ void ImprimirPantalla()
             }
         }
         cout << endl;
+    }
+    cout << "Puntuacion actual: " << personaje_points << " Puntuacion pendiente: " << map_points << endl;
+    if (win)
+    {
+        cout << "Has ganado!" << endl;
     }
 }
