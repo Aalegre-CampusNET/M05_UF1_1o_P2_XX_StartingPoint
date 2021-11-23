@@ -1,6 +1,7 @@
 #include <iostream>
-#include <windows.h>
+#include "ConsoleUtils.h"
 using namespace std;
+using namespace ConsoleUtils;
 #define CONSOLE_HEIGHT 20
 #define CONSOLE_WIDTH 20
 
@@ -73,54 +74,26 @@ void RellenarMapa()
 void Inputs()
 {
     input = USER_INPUTS::NONE;
-    if (GetKeyState(VK_UP) & 0x8000 || GetKeyState('W') & 0x8000)
+    if (KeyPressed(VK_UP) || KeyPressed('W'))
     {
         input = USER_INPUTS::UP;
     }
-    if (GetKeyState(VK_DOWN) & 0x8000 || GetKeyState('S') & 0x8000)
+    if (KeyPressed(VK_DOWN) || KeyPressed('S'))
     {
         input = USER_INPUTS::DOWN;
     }
-    if (GetKeyState(VK_RIGHT) & 0x8000 || GetKeyState('D') & 0x8000)
+    if (KeyPressed(VK_RIGHT) || KeyPressed('D'))
     {
         input = USER_INPUTS::RIGHT;
     }
-    if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState('A') & 0x8000)
+    if (KeyPressed(VK_LEFT) || KeyPressed('A'))
     {
         input = USER_INPUTS::LEFT;
     }
-    if (GetKeyState(VK_ESCAPE) & 0x8000 || GetKeyState('Q') & 0x8000)
+    if (KeyPressed(VK_ESCAPE) || KeyPressed('Q'))
     {
         input = USER_INPUTS::QUIT;
     }
-    //char input_raw;
-    //cin >> input_raw;
-    //switch (input_raw)
-    //{
-    //case 'W':
-    //case 'w':
-    //    input = USER_INPUTS::UP;
-    //    break;
-    //case 'A':
-    //case 'a':
-    //    input = USER_INPUTS::LEFT;
-    //    break;
-    //case 'S':
-    //case 's':
-    //    input = USER_INPUTS::DOWN;
-    //    break;
-    //case 'D':
-    //case 'd':
-    //    input = USER_INPUTS::RIGHT;
-    //    break;
-    //case 'Q':
-    //case 'q':
-    //    input = USER_INPUTS::QUIT;
-    //    break;
-    //default:
-    //    input = USER_INPUTS::NONE;
-    //    break;
-    //}
 }
 
 void Logica()
@@ -188,15 +161,14 @@ void Logica()
 
 void ImprimirPantalla()
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    system("CLS");
+    Console_SetPos(0,0);
     for (int i = 0; i < CONSOLE_HEIGHT; i++)
     {
         for (int j = 0; j < CONSOLE_WIDTH; j++)
         {
             if (personaje_x == j && personaje_y == i)
             {
-                SetConsoleTextAttribute(hConsole, 14);
+                Console_SetColor(CONSOLE_COLOR::YELLOW);
                 cout << personaje;
             }
             else
@@ -204,19 +176,19 @@ void ImprimirPantalla()
                 switch (ConsoleScreen[i][j])
                 {
                 case MAP_TILES::WALL:
-                    SetConsoleTextAttribute(hConsole, 17);
+                    Console_SetColor(CONSOLE_COLOR::DARK_BLUE, CONSOLE_COLOR::DARK_BLUE);
                     break;
                 case MAP_TILES::EMPTY:
-                    SetConsoleTextAttribute(hConsole, 14);
+                    Console_SetColor(CONSOLE_COLOR::YELLOW);
                     break;
                 case MAP_TILES::PUNTO:
-                    SetConsoleTextAttribute(hConsole, 14);
+                    Console_SetColor(CONSOLE_COLOR::YELLOW);
                     break;
                 }
                 cout << (char)ConsoleScreen[i][j];
             }
         }
-        SetConsoleTextAttribute(hConsole, 7);
+        Console_SetColor();
         cout << endl;
     }
     cout << "Puntuacion actual: " << personaje_points << " Puntuacion pendiente: " << map_points << endl;
