@@ -1,14 +1,21 @@
 #include <iostream>
+#include <windows.h>
 using namespace std;
 #define CONSOLE_HEIGHT 20
 #define CONSOLE_WIDTH 20
 
+/// <summary>
+/// Rellena el array ConsoleScreen con la información del mapa
+/// </summary>
 void RellenarMapa();
 void Inputs();
 void Logica();
 void ImprimirPantalla();
 
-enum MAP_TILES { EMPTY = ' ', WALL = '#', POINT = '.' };
+/// <summary>
+/// Tipos de tiles en el mapa
+/// </summary>
+enum MAP_TILES { EMPTY = ' ', WALL = '#', PUNTO = '.' };
 enum USER_INPUTS { NONE, UP, DOWN, RIGHT, LEFT, QUIT };
 
 //Caracteres para imprimir en consola
@@ -57,42 +64,63 @@ void RellenarMapa()
     ConsoleScreen[2][CONSOLE_WIDTH - 1] = MAP_TILES::EMPTY;
     ConsoleScreen[3][CONSOLE_WIDTH - 1] = MAP_TILES::EMPTY;
 
-    ConsoleScreen[2][3] = MAP_TILES::POINT;
+    ConsoleScreen[2][3] = MAP_TILES::PUNTO;
     map_points++;
-    ConsoleScreen[3][3] = MAP_TILES::POINT;
+    ConsoleScreen[3][3] = MAP_TILES::PUNTO;
     map_points++;
 }
 
 void Inputs()
 {
-    char input_raw;
-    cin >> input_raw;
-    switch (input_raw)
+    input = USER_INPUTS::NONE;
+    if (GetKeyState(VK_UP) & 0x8000 || GetKeyState('W') & 0x8000)
     {
-    case 'W':
-    case 'w':
         input = USER_INPUTS::UP;
-        break;
-    case 'A':
-    case 'a':
-        input = USER_INPUTS::LEFT;
-        break;
-    case 'S':
-    case 's':
-        input = USER_INPUTS::DOWN;
-        break;
-    case 'D':
-    case 'd':
-        input = USER_INPUTS::RIGHT;
-        break;
-    case 'Q':
-    case 'q':
-        input = USER_INPUTS::QUIT;
-        break;
-    default:
-        input = USER_INPUTS::NONE;
-        break;
     }
+    if (GetKeyState(VK_DOWN) & 0x8000 || GetKeyState('S') & 0x8000)
+    {
+        input = USER_INPUTS::DOWN;
+    }
+    if (GetKeyState(VK_RIGHT) & 0x8000 || GetKeyState('D') & 0x8000)
+    {
+        input = USER_INPUTS::RIGHT;
+    }
+    if (GetKeyState(VK_LEFT) & 0x8000 || GetKeyState('A') & 0x8000)
+    {
+        input = USER_INPUTS::LEFT;
+    }
+    if (GetKeyState(VK_ESCAPE) & 0x8000 || GetKeyState('Q') & 0x8000)
+    {
+        input = USER_INPUTS::QUIT;
+    }
+    //char input_raw;
+    //cin >> input_raw;
+    //switch (input_raw)
+    //{
+    //case 'W':
+    //case 'w':
+    //    input = USER_INPUTS::UP;
+    //    break;
+    //case 'A':
+    //case 'a':
+    //    input = USER_INPUTS::LEFT;
+    //    break;
+    //case 'S':
+    //case 's':
+    //    input = USER_INPUTS::DOWN;
+    //    break;
+    //case 'D':
+    //case 'd':
+    //    input = USER_INPUTS::RIGHT;
+    //    break;
+    //case 'Q':
+    //case 'q':
+    //    input = USER_INPUTS::QUIT;
+    //    break;
+    //default:
+    //    input = USER_INPUTS::NONE;
+    //    break;
+    //}
 }
 
 void Logica()
@@ -143,7 +171,7 @@ void Logica()
             personaje_y_new = personaje_y;
             personaje_x_new = personaje_x;
         }
-        else if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::POINT)
+        else if (ConsoleScreen[personaje_y_new][personaje_x_new] == MAP_TILES::PUNTO)
         {
             map_points--;
             personaje_points++;
@@ -160,6 +188,7 @@ void Logica()
 
 void ImprimirPantalla()
 {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     system("CLS");
     for (int i = 0; i < CONSOLE_HEIGHT; i++)
     {
@@ -167,13 +196,27 @@ void ImprimirPantalla()
         {
             if (personaje_x == j && personaje_y == i)
             {
+                SetConsoleTextAttribute(hConsole, 14);
                 cout << personaje;
             }
             else
             {
+                switch (ConsoleScreen[i][j])
+                {
+                case MAP_TILES::WALL:
+                    SetConsoleTextAttribute(hConsole, 17);
+                    break;
+                case MAP_TILES::EMPTY:
+                    SetConsoleTextAttribute(hConsole, 14);
+                    break;
+                case MAP_TILES::PUNTO:
+                    SetConsoleTextAttribute(hConsole, 14);
+                    break;
+                }
                 cout << (char)ConsoleScreen[i][j];
             }
         }
+        SetConsoleTextAttribute(hConsole, 7);
         cout << endl;
     }
     cout << "Puntuacion actual: " << personaje_points << " Puntuacion pendiente: " << map_points << endl;
