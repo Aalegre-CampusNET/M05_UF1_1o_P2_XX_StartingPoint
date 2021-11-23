@@ -33,6 +33,7 @@ bool win = false;
 
 int main()
 {
+    Console_Load();
     RellenarMapa();
     ImprimirPantalla();
     while (run)
@@ -191,6 +192,7 @@ void ImprimirPantalla()
         Console_SetColor();
         cout << endl;
     }
+    Console_ClearCharacter({ 0,20 });
     cout << "Puntuacion actual: " << personaje_points << " Puntuacion pendiente: " << map_points << endl;
     if (win)
     {
