@@ -1,29 +1,16 @@
 #pragma once
+#include <iostream>
 #include <conio.h>
 #include <windows.h>
 
+
 namespace ConsoleUtils
 {
-#define NOSYNC 1
-	/// <summary>
-	/// Stores the console info
-	/// </summary>
-	HANDLE console;
 	/// <summary>
 	/// The different colors that the console accepts
 	/// </summary>
 	enum CONSOLE_COLOR { BLACK, DARK_BLUE, DARK_GREEN, DARK_CYAN, DARK_RED, DARK_MAGENTA, DARK_YELLOW, LIGHT_GREY, DARK_GREY, BLUE, GREEN, CYAN, RED, MAGENTA, YELLOW, WHITE };
 
-	/// <summary>
-	/// Loads the necessary info in order for the console functions to work
-	/// </summary>
-	inline void Console_Load()
-	{
-#if defined(NOSYNC)
-		std::cout.sync_with_stdio(false);
-#endif
-		console = GetStdHandle(STD_OUTPUT_HANDLE);
-	}
 	/// <summary>
 	/// Changes the background and foreground color of the next printed characters
 	/// </summary>
@@ -31,8 +18,9 @@ namespace ConsoleUtils
 	/// <param name="_background">The color of the background</param>
 	inline void Console_SetColor(CONSOLE_COLOR _foreground = CONSOLE_COLOR::WHITE, CONSOLE_COLOR _background = CONSOLE_COLOR::BLACK)
 	{
+		HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 		WORD color = (_background << 4) | _foreground;
-		SetConsoleTextAttribute(console, color);
+		SetConsoleTextAttribute(consoleHandle, color);
 	}
 	/// <summary>
 	/// Sets the console cursor in a specific coordinate
@@ -40,7 +28,8 @@ namespace ConsoleUtils
 	/// <param name="_pos">Desired coordinate</param>
 	inline void Console_SetPos(COORD _pos)
 	{
-		SetConsoleCursorPosition(console, _pos);
+		HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(consoleHandle, _pos);
 	}
 	/// <summary>
 	/// Sets the console cursor in a specific coordinate
@@ -64,9 +53,10 @@ namespace ConsoleUtils
 		WORD color = (_background << 4) | _foreground;
 		CONSOLE_SCREEN_BUFFER_INFO screen;
 		DWORD written;
-		GetConsoleScreenBufferInfo(console, &screen);
-		FillConsoleOutputCharacterA(console, _character, screen.dwSize.X * screen.dwSize.Y, _topleft, &written);
-		FillConsoleOutputAttribute(console, color, screen.dwSize.X * screen.dwSize.Y, _topleft, &written);
+		HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+		GetConsoleScreenBufferInfo(consoleHandle, &screen);
+		FillConsoleOutputCharacterA(consoleHandle, _character, screen.dwSize.X * screen.dwSize.Y, _topleft, &written);
+		FillConsoleOutputAttribute(consoleHandle, color, screen.dwSize.X * screen.dwSize.Y, _topleft, &written);
 		Console_SetPos(_topleft);
 	}
 	/// <summary>
